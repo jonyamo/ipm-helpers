@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+# Update apache vhosts
+cp /dev/null "$basedir/vhosts"
+for rvl in $(get_rvls); do
+  port=$(get_port $rvl)
+  echo "$rvl $port"
+  echo "Use IPM /var/www/ipm/rvl/$rvl $port" >> "$basedir/vhosts"
+done
+
+sudo service apache2 restart

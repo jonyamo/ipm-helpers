@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+# Set appropriate IPM env
+$_IPM_ROOT = getenv('_IPM_ROOT');
+require_once "$_IPM_ROOT/share/ipm/utils.php";
+set_ipm_base_dir();
+
+# Load IPM env
+require_once '/etc/ipm.conf';
+IpmInit::init();
+
+require_once '/opt/src/boris/lib/autoload.php';
+$boris = new \Boris\Boris('ipm-' . get_current_rvl() . '> ');
+$boris->start();
+

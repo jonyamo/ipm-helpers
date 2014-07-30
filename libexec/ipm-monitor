@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+<?php
+# Set appropriate IPM env
+$_IPM_ROOT = getenv('_IPM_ROOT');
+require_once "$_IPM_ROOT/share/ipm/utils.php";
+set_ipm_base_dir();
+
+# Load IPM env
+require_once '/etc/ipm.conf';
+IpmInit::init();
+
+$opts       = getopt('i:s:h:m:');
+$debug      = true;
+$monitor_id = isset($opts['i']) ? (int)$opts['i'] : 0;
+$status     = isset($opts['s']) ? (int)$opts['s'] : rand(0,2);
+$header     = isset($opts['h']) ? $opts['h'] : "";
+$message    = isset($opts['m']) ? $opts['m'] : "";
+
+if (!$header) {
+    switch ($status) {
+    case 0:
+        $header = 'OK';
+        break;
+    case 1:
+        $header = 'FAIL';
+        break;
+    case 2:
+        $header = 'WARN';
+        break;
+    }
+}
+
+Monitor::post(
+    $monitor_id,
+    null,
+    array(
+        'status' => $status,
+        'monitor_data' => "$header\n$message"
+    ),
+    array(
+        'clear_cache' => true,
+        'override_delay' => true
+    )
+);
+
