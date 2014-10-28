@@ -19,9 +19,11 @@ Source in shell:
 Available Commands
 ------------------
 
+- `ipm branches [RVL]` - List branches for each module.
 - `ipm commands` - List available commands.
 - `ipm monitor -i ID [-s STATUS]` - Manually update given monitor.
 - `ipm new <RVL>` - Initialize modules for given RVL.
 - `ipm repl` - Start PHP REPL loaded with current RVL.
-- `ipm update [RVL]` - Update modules. If no RVL given, update all.
+- `ipm tags [RVL]` - Update source code tags.
+- `ipm update [RVL]` - Update modules.
 - `ipm vhosts` - Enable Apache vhosts for all installed RVLs.
