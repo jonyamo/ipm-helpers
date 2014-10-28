@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+update_tags() {
+  local rvl=$1
+  echo "${yellow}${underline}RVL: $rvl${reset}"
+  cd "$basedir/rvl/$rvl"
+  global -vu 2>/dev/null || \
+      (find -L mod -path '*.git' -prune -o -name '*.php' > gtags.files && gtags -v)
+}
+
+cwd=$(pwd)
+for rvl in $(get_rvls ${1:-all}); do
+  update_tags $rvl
+done
+cd $cwd
