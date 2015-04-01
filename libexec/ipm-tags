@@ -7,8 +7,14 @@ update_tags() {
   local rvl=$1
   echo "${yellow}${underline}RVL: $rvl${reset}"
   cd "$basedir/rvl/$rvl"
-  global -vu 2>/dev/null || \
-      (find -L mod -path '*.git' -prune -o -name '*.php' > gtags.files && gtags -v)
+  # global -vu
+  (
+  for auto in mod/*/.autoload; do
+      module=$(dirname "$auto")
+      find "$module/src" -name '*.php' -print
+  done
+  ) > gtags.files
+  gtags -v 2>&1 | grep -v extracting
 }
 
 cwd=$(pwd)

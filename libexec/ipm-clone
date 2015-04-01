@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+modules_file=/tmp/modules.$$
+trap "rm -f '$modules_file' &>/dev/null" EXIT
+
+rvl="$1"
+if ! validate_rvl "$rvl"; then
+    fatal "Invalid RVL"
+fi
+
+cwd=$(pwd)
+
+echo "${yellow}${underline}RVL: $rvl${reset}"
+
+prjdir="$basedir/rvl/$rvl"
+mkdir -p "$prjdir"
+
+echo "Copying project files"
+sed "s/%{http_port}/$(get_port $rvl)/" "$basedir/share/ipm.conf" > "$prjdir/ipm.conf"
+ln -sf "$basedir/share/agignore" "$prjdir/.agignore"
+
+echo "Linking shared directories"
+for link in Attachments Logs demos monitor_rrd tmp tripwire wiki wiki_upload; do
+    rm -f "$prjdir/$link" && ln -s "$basedir/share/$link" "$prjdir/$link"
+done
+
+echo "Cloning new modules"
+ipm mods $rvl > $modules_file
+[[ $? -ne 0 ]] && fatal "Unable to fetch modules"
+
+cd "$basedir/share/stage"
+while read release module cvsroot; do
+    if [ ! -d "$module-$release" ]; then
+        echo "$module-$release ..." >&2
+        echo "$module" "$release"
+    fi
+done < $modules_file | xargs -r -L 1 -P $(nproc) igit init
+
+rm -rf "$prjdir/mod"
+mkdir "$prjdir/mod" && cd "$prjdir/mod"
+while read release module cvsroot; do
+    if [ -e "$basedir/share/stage/$module-$release/.git/config" ]; then
+        short_name=$(echo "$module" | tr 'A-Z' 'a-z' | sed -e 's/^ipm_*//; s/-[^-]*$//; s/_*201[0-9]//;')
+        ln -sf "$basedir/share/stage/$module-$release" $short_name
+    fi
+done < $modules_file
+
+echo "Linking shared modules"
+rm -f "$prjdir/system_scripts" && ln -s "$basedir/share/stage/system_scripts" "$prjdir/system_scripts"
+rm -f "$prjdir/mod/img" && ln -s "$basedir/share/stage/img-HEAD" "$prjdir/mod/img"
+
+cd $cwd
+exit

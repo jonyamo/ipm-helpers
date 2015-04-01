@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+outfile=/tmp/$$.out
+trap "rm -f '$outfile'" EXIT
+
+rvl="$1"
+if ! validate_rvl "$rvl"; then
+    fatal "Invalid RVL"
+fi
+
+cwd=$(pwd)
+cd "$basedir/rvl/$rvl/mod"
+
+case "$2" in
+    all )
+        ls
+        ;;
+    "" )
+        echo core
+        echo db
+        echo interfaces
+        echo userfacing
+        ;;
+    * )
+        shift
+        echo "$@"
+        ;;
+esac > $outfile
+
+while read module; do
+    cd "$module"
+    if [[ "$(git symbolic-ref -q --short HEAD 2>/dev/null)" == "master" ]]; then
+        echo $module
+    else
+        wrn "$module: not on master branch, skipping..."
+    fi
+    cd - >/dev/null
+done < $outfile | xargs -I '{}' -P $(nproc) \
+    bash -c '(echo "Pulling..." && cd ./{} && igit pull >/dev/null || echo "FAILED: `pwd`") 2>&1 | awk '"'"'{printf "%s: %s\n", "{}", $0}'"'"
+
+cd $cwd

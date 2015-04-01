@@ -1,4 +1,7 @@
 basedir="$HOME/hacking/ipm"
+ipmhost=ipm.verizon.com
+ipmuser="$USER"
+ipmcookies="$XDG_CACHE_HOME/ipm/cookies"
 
 if [ -t 1 ]; then
   ncolors=$(tput colors)
@@ -18,9 +21,17 @@ if [ -t 1 ]; then
   fi
 fi
 
+wrn() {
+  printf "${yellow}[WARN]${reset} $1\n" >&2
+}
+
 err() {
-  printf "${red}ERROR:${reset} $1\n" >&2
-  exit 1
+  printf "${red}[ERROR]${reset} $1\n" >&2
+}
+
+fatal() {
+    err "$1"
+    exit 1
 }
 
 get_rvls() {
@@ -41,3 +52,11 @@ get_port() {
   echo "$1" | sed 's/[a-z]//g' | sed 's/01//'
 }
 
+validate_rvl() {
+    if [[ "$1" =~ r[0-9][0-9]v[0-9][0-9]l[0-9][0-9] ]]
+    then
+        return 0
+    else
+        return 1
+    fi
+}

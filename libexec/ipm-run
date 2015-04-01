@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+cwd=$(pwd)
+for rvl in $(get_rvls ${1:-all}); do
+  ipm clone $rvl
+  ipm cleandupes $rvl
+  ipm pull $rvl
+  ipm tags $rvl
+done
+cd $cwd
+ipm vhosts
+exit

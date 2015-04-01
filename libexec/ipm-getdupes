@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+# Set appropriate IPM env
+$_IPM_ROOT = getenv('_IPM_ROOT');
+require_once "$_IPM_ROOT/share/ipm/utils.php";
+$rvl = set_ipm_base_dir(@$argv[1] ?: null);
+
+global $IPMBaseDir;
+$IPMBaseDir = getenv('IPM_BASE_DIR');
+
+# Need the following to pass IpmInclude::sanity_check().
+global $internalNRPEuserId;
+$internalNRPEuserId = true;
+
+require_once "$IPMBaseDir/mod/core/src/include/IpmAutoloader.class.php";
+exit;

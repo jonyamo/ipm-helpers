@@ -4,9 +4,10 @@ set -o errexit # exit on any non-true return val
 source "$_IPM_ROOT/share/ipm/utils.sh"
 
 show_branches() {
-  local rvl=$1
-  echo "${yellow}${underline}RVL: $rvl${reset}"
-  cd "$basedir/rvl/$rvl/stage"
+  #local rvl=$1
+  #echo "${yellow}${underline}RVL: $rvl${reset}"
+  #cd "$basedir/rvl/$rvl/stage"
+  cd "$basedir/share/stage"
   ls -d */ | while read module; do
     cd "$module"
     output="${cyan}${underline}MODULE: $module${reset}"
@@ -20,7 +21,8 @@ show_branches() {
 }
 
 cwd=$(pwd)
-for rvl in $(get_rvls ${1:-all}); do
-  show_branches $rvl
-done
+#for rvl in $(get_rvls ${1:-all}); do
+#  show_branches $rvl
+#done
+show_branches
 cd $cwd

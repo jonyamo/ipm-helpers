@@ -7,7 +7,6 @@ set_ipm_base_dir();
 
 # Load IPM env
 require_once '/etc/ipm.conf';
-IpmInit::init();
 
 $opts       = getopt('i:s:h:m:');
 $debug      = true;

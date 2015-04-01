@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+trap "rm -f '$outfile'" EXIT
+
+rvl="$1"
+if ! validate_rvl "$rvl"; then
+    fatal "Invalid RVL"
+fi
+
+ipm login >/dev/null
+
+outfile=/tmp/$$.out
+ipm get -o "$outfile" \
+  --data-urlencode "params[]=guess_components" \
+  --data-urlencode "params[]=425" \
+  --data-urlencode "params[]=$rvl" \
+  "https://$ipmhost/direct/nrpe6/run_query.php"
+
+ipm logout
+
+if [ "$?" -eq 0 ]; then
+    if grep -q "error_message" "$outfile"; then
+        cat "$outfile"
+    else
+        tail -n +2 "$outfile" | sed -e 's/|$//; s/|/ /g;'
+        exit 0
+    fi
+fi
+
+fatal "Failed to fetch dependencies"

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+ipmpass=$(getnetrc jon.yamokoski@verizon.com)
+outfile=/tmp/$$.out
+
+trap "rm -f '$outfile'" EXIT
+
+ipm get -o "$outfile" \
+  --data-urlencode "TARGET=https://$ipmhost/sso/sso/ssoLogin.php" \
+  --data-urlencode "smerrorpage=https://$ipmhost/sso/exception.php" \
+  --data-urlencode "USERID=$ipmuser" \
+  --data-urlencode "PASSWORD=$ipmpass" \
+  "https://login.verizon.com/onepassword/servlet/LoginController"
+
+grep -q "IPM - UserHome" "$outfile"
+[[ $? -ne 0 ]] && fatal "Not logged in"

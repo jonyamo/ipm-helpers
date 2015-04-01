@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+ipm get -o /dev/null \
+  --data-urlencode "target=/sso/doLogout.php" \
+  "https://$ipmhost/logout.fcc"
+
+exit $?

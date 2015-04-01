@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+curl -LSs -b "$ipmcookies" -c "$ipmcookies" -k "$@"
+
+exitcode=$?
+[[ "$exitcode" -eq 0 ]] || err "You must first log in to IPM"
+exit $exitcode

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -o nounset # exit on unbound variables
+set -o errexit # exit on any non-true return val
+source "$_IPM_ROOT/share/ipm/utils.sh"
+
+outfile=/tmp/$$.out
+trap "rm -f '$outfile' 2>/dev/null" EXIT
+
+clean_dupes() {
+  local rvl=$1
+  echo "${yellow}${underline}RVL: $rvl${reset}"
+  ipm getdupes $rvl >/dev/null 2> $outfile
+  (awk -F'<>' '{print $NF}' | cut -d/ -f1 | uniq) < $outfile |
+  while read module; do
+    echo "Removing $module"
+    rm -f "$basedir/rvl/$rvl/mod/$module"
+  done
+}
+
+for rvl in $(get_rvls ${1:-all}); do
+  clean_dupes $rvl
+done
